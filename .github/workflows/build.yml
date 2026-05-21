@@ -50,9 +50,15 @@ jobs:
       - name: Build Installer
         run: iscc setup.iss
 
+      - name: Create Tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag -a v1.0.0 -m "Release v1.0.0"
+          git push origin v1.0.0
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: github.ref == 'refs/heads/master'
         with:
           files: ChatApp-Setup.exe
         env:
