@@ -1,0 +1,146 @@
+<wnd:AppWindow xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:wnd="using:FluentAvalonia.UI.Windowing"
+               xmlns:vm="using:ChatApp.ViewModels"
+               xmlns:views="using:ChatApp.Views"
+               xmlns:ui="using:FluentAvalonia.UI.Controls"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+               x:Class="ChatApp.Views.MainWindow"
+               x:DataType="vm:MainWindowViewModel"
+               Icon="/Assets/avalonia-logo.ico"
+               Title="AgentChat"
+               Width="1100" Height="700"
+               MinWidth="700" MinHeight="500"
+               WindowStartupLocation="CenterScreen"
+               TransparencyLevelHint="Mica"
+               Background="Transparent">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="260,*">
+        <!-- Sidebar -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <!-- Brand Header -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14,14,14,10">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="9">
+                        <Border Width="22" Height="22" CornerRadius="4"
+                                Background="{DynamicResource AccentFillColorDefaultBrush}">
+                            <PathIcon Data="M5.5,9 L8,11.5 L12.5,6.5"
+                                      Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                                      Width="14" Height="14" />
+                        </Border>
+                        <TextBlock Text="AgentChat" FontSize="14" FontWeight="600"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Width="28" Height="28"
+                            Padding="0"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Command="{Binding ToggleSidebarCommand}">
+                        <ui:SymbolIcon Symbol="Back" FontSize="12" />
+                    </Button>
+                </Grid>
+
+                <!-- New Chat Button -->
+                <Button Grid.Row="1"
+                        Margin="12,0,12,12"
+                        Padding="0,9"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Command="{Binding NewChatCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <ui:SymbolIcon Symbol="Add" FontSize="14" />
+                        <TextBlock Text="新对话" FontSize="13" FontWeight="500" />
+                    </StackPanel>
+                </Button>
+
+                <!-- Session Groups -->
+                <ScrollViewer Grid.Row="2" Padding="8,0">
+                    <ItemsControl ItemsSource="{Binding SessionGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SessionGroup">
+                                <StackPanel Spacing="0">
+                                    <TextBlock Text="{Binding Label}"
+                                               FontSize="11"
+                                               FontWeight="600"
+                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                               Margin="10,0,10,6" />
+                                    <ItemsControl ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:SessionItem">
+                                                <Button HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Left"
+                                                        Padding="10,9"
+                                                        Margin="0,1"
+                                                        CornerRadius="6"
+                                                        Background="Transparent"
+                                                        Command="{Binding $parent[ScrollViewer].((vm:MainWindowViewModel)DataContext).SelectSessionCommand}"
+                                                        CommandParameter="{Binding Id}">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding Title}"
+                                                                   FontSize="13"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <Button Grid.Column="1"
+                                                                Width="22" Height="22"
+                                                                Padding="0"
+                                                                Background="Transparent"
+                                                                Command="{Binding $parent[ScrollViewer].((vm:MainWindowViewModel)DataContext).DeleteSessionCommand}"
+                                                                CommandParameter="{Binding Id}">
+                                                            <ui:SymbolIcon Symbol="Delete" FontSize="10" />
+                                                        </Button>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Model Selector & Settings Footer -->
+                <Border Grid.Row="3"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="0,1,0,0"
+                        Padding="12">
+                    <StackPanel Spacing="8">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="模型" FontSize="11"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            <ComboBox HorizontalAlignment="Stretch"
+                                      ItemsSource="{Binding Models}"
+                                      SelectedItem="{Binding SelectedModel}" />
+                        </StackPanel>
+                        <Button HorizontalAlignment="Stretch"
+                                Padding="0,7"
+                                HorizontalContentAlignment="Center"
+                                Command="{Binding OpenSettingsCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                <ui:SymbolIcon Symbol="Settings" FontSize="13" />
+                                <TextBlock Text="设置" FontSize="12" FontWeight="500" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*">
+            <Border Grid.Row="0" Height="36" />
+            <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+        </Grid>
+    </Grid>
+
+</wnd:AppWindow>

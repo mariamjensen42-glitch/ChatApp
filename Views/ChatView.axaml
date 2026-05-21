@@ -1,0 +1,155 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChatApp.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
+             xmlns:conv="using:ChatApp.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ChatApp.Views.ChatView"
+             x:DataType="vm:ChatViewModel">
+
+    <Design.DataContext>
+        <vm:ChatViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto"
+              Margin="20,12,20,10">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding RoleName}"
+                           FontSize="15"
+                           FontWeight="600"
+                           VerticalAlignment="Center" />
+                <Border Background="{DynamicResource ControlFillColorTertiaryBrush}"
+                        CornerRadius="8"
+                        Padding="6,2"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ModelName}"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </Border>
+            </StackPanel>
+            <Button Grid.Column="1"
+                    Width="30" Height="30"
+                    Padding="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    IsEnabled="{Binding CanClear}"
+                    Command="{Binding ClearCommand}">
+                <ui:SymbolIcon Symbol="Delete" FontSize="12" />
+            </Button>
+        </Grid>
+
+        <!-- Messages -->
+        <ScrollViewer x:Name="MessagesScroll" Grid.Row="1">
+            <StackPanel MaxWidth="768" Margin="24,0" Spacing="0">
+                <ItemsControl ItemsSource="{Binding Messages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ChatMessage">
+                            <Grid ColumnDefinitions="Auto,*" Margin="0,16,0,16">
+                                <!-- Avatar -->
+                                <Border Grid.Column="0"
+                                        Width="26" Height="26"
+                                        CornerRadius="6"
+                                        Margin="0,2,12,0"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource ControlFillColorTertiaryBrush}">
+                                    <TextBlock Text="AI"
+                                               FontSize="10"
+                                               FontWeight="700"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+
+                                <!-- Content -->
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Role}"
+                                                   FontSize="13"
+                                                   FontWeight="600" />
+                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <md:MarkdownRenderer x:Name="MdRenderer"
+                                                           IsVisible="{Binding Role, Converter={x:Static conv:StringEqualsConverter.Instance}, ConverterParameter=assistant}" />
+                                    <TextBlock Text="{Binding Text}"
+                                               FontSize="14"
+                                               LineHeight="24"
+                                               TextWrapping="Wrap"
+                                               IsVisible="{Binding Role, Converter={x:Static conv:StringEqualsConverter.Instance}, ConverterParameter=user}" />
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- History Loading -->
+                <StackPanel IsVisible="{Binding IsHistoryLoading}"
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            Margin="0,60,0,16">
+                    <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20" />
+                    <TextBlock Text="加载历史消息..."
+                               FontSize="13"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Typing indicator -->
+                <StackPanel IsVisible="{Binding IsLoading}"
+                            Orientation="Horizontal"
+                            Spacing="4"
+                            Margin="38,16,0,16">
+                    <ui:ProgressRing IsIndeterminate="True" Width="16" Height="16" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Input -->
+        <Border Grid.Row="2"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,14,24,16">
+            <StackPanel MaxWidth="768" Spacing="6">
+                <Border Background="{DynamicResource ControlFillColorTertiaryBrush}"
+                        CornerRadius="12"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        Padding="12,8,8,8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox x:Name="InputBox"
+                                 Grid.Column="0"
+                                 Text="{Binding InputText}"
+                                 Watermark="输入消息..."
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 MaxHeight="120" />
+                        <Button Grid.Column="1"
+                                Width="30" Height="30"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                IsEnabled="{Binding !IsLoading}"
+                                Command="{Binding SendCommand}">
+                            <ui:SymbolIcon Symbol="Send" FontSize="14" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Text="Enter 发送，Shift+Enter 换行"
+                           FontSize="11"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+
+</UserControl>

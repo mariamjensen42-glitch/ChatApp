@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChatApp.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ChatApp.Views.RoleEditView"
+             x:DataType="vm:RoleEditViewModel">
+
+    <Design.DataContext>
+        <vm:RoleEditViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="560" Margin="0,48,0,48" Spacing="20" HorizontalAlignment="Center">
+            <TextBlock Text="创建自定义角色"
+                       FontSize="24"
+                       FontWeight="600"
+                       HorizontalAlignment="Center" />
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="角色名称 *" FontSize="13" />
+                <TextBox Text="{Binding Name}" Watermark="例如：心理咨询师" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="角色描述" FontSize="13" />
+                <TextBox Text="{Binding Description}" Watermark="简短描述这个角色的功能" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="系统指令 *" FontSize="13" />
+                <TextBox Text="{Binding Instructions}"
+                         Watermark="定义这个角色的行为方式..."
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         Height="120" />
+            </StackPanel>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                       FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                <Button Content="保存角色"
+                        Command="{Binding SaveCommand}" />
+                <Button Content="取消"
+                        Command="{Binding CancelCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

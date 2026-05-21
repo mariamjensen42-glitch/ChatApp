@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChatApp.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ChatApp.Views.WelcomeView"
+             x:DataType="vm:WelcomeViewModel">
+
+    <Design.DataContext>
+        <vm:WelcomeViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <StackPanel HorizontalAlignment="Center" MaxWidth="720" Margin="0,80,0,48" Spacing="36">
+            <!-- Hero -->
+            <StackPanel HorizontalAlignment="Center" Spacing="16">
+                <Border Width="48" Height="48" CornerRadius="12"
+                        Background="{DynamicResource AccentFillColorDefaultBrush}"
+                        HorizontalAlignment="Center">
+                    <PathIcon Data="M16,24 L22,30 L32,18"
+                              Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                              Width="24" Height="24" />
+                </Border>
+                <TextBlock Text="今天想聊什么？"
+                           FontSize="28"
+                           FontWeight="600"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="选择一个角色和模型开始对话"
+                           FontSize="14"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Loading -->
+            <ui:ProgressRing IsVisible="{Binding IsLoading}"
+                             IsIndeterminate="True"
+                             HorizontalAlignment="Center" />
+
+            <!-- Roles -->
+            <StackPanel IsVisible="{Binding !IsLoading}" Spacing="16">
+                <!-- Preset Roles -->
+                <ItemsControl ItemsSource="{Binding PresetRoles}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RoleItem">
+                            <Button Margin="4"
+                                    Padding="16,14"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Command="{Binding $parent[ItemsControl].((vm:WelcomeViewModel)DataContext).StartChatCommand}"
+                                    CommandParameter="{Binding Id}">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="14"
+                                               FontWeight="600" />
+                                    <TextBlock Text="{Binding Description}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Custom Roles -->
+                <StackPanel IsVisible="{Binding CustomRoles.Count}">
+                    <TextBlock Text="自定义"
+                               FontSize="12"
+                               FontWeight="600"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                               Margin="4,16,4,8" />
+                    <ItemsControl ItemsSource="{Binding CustomRoles}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:RoleItem">
+                                <Button Margin="4"
+                                        Padding="16,14"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        Command="{Binding $parent[ItemsControl].((vm:WelcomeViewModel)DataContext).StartChatCommand}"
+                                        CommandParameter="{Binding Id}">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   FontWeight="600" />
+                                        <TextBlock Text="{Binding Description}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Create Role -->
+                <Button HorizontalAlignment="Center"
+                        Padding="16,10"
+                        Command="{Binding CreateRoleCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ui:SymbolIcon Symbol="Add" FontSize="14" />
+                        <TextBlock Text="创建自定义角色" FontSize="13" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

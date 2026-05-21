@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ChatApp.ViewModels"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ChatApp.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <Design.DataContext>
+        <vm:SettingsViewModel />
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <StackPanel MaxWidth="560" Margin="48,40" Spacing="32">
+            <!-- Header -->
+            <TextBlock Text="设置"
+                       FontSize="24"
+                       FontWeight="600" />
+
+            <!-- API -->
+            <Border Background="{DynamicResource ControlFillColorTertiaryBrush}"
+                    CornerRadius="12"
+                    Padding="20,16">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="API 配置"
+                               FontSize="14"
+                               FontWeight="600"
+                               Margin="0,0,0,12" />
+
+                    <!-- API Key -->
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="API Key"
+                                   FontSize="13"
+                                   VerticalAlignment="Center" />
+                        <Button Grid.Row="0" Grid.Column="1"
+                                Width="28" Height="28"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                ToolTip.Tip="{Binding ApiKey, StringFormat='{}{0}'}">
+                            <ui:SymbolIcon Symbol="View" FontSize="12" />
+                        </Button>
+                        <TextBox Grid.Row="1" Grid.ColumnSpan="2"
+                                 Text="{Binding ApiKey}"
+                                 PasswordChar="*"
+                                 Watermark="sk-..."
+                                 Margin="0,4,0,0" />
+                    </Grid>
+
+                    <!-- Endpoint -->
+                    <StackPanel Spacing="4" Margin="0,12,0,0">
+                        <TextBlock Text="Endpoint"
+                                   FontSize="13" />
+                        <TextBox Text="{Binding Endpoint}"
+                                 Watermark="https://api.deepseek.com/v1" />
+                    </StackPanel>
+
+                    <Button HorizontalAlignment="Right"
+                            Padding="16,7"
+                            Command="{Binding SaveCommand}"
+                            Margin="0,12,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <ui:SymbolIcon Symbol="Save" FontSize="12" />
+                            <TextBlock Text="保存配置" FontSize="13" FontWeight="500" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Theme -->
+            <Border Background="{DynamicResource ControlFillColorTertiaryBrush}"
+                    CornerRadius="12"
+                    Padding="20,16">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="外观"
+                               FontSize="14"
+                               FontWeight="600"
+                               Margin="0,0,0,12" />
+                    <ComboBox ItemsSource="{Binding Themes}"
+                              SelectedIndex="{Binding ThemeIndex}"
+                              HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Border>
+
+            <!-- Info -->
+            <TextBlock Text="修改 API 配置后需要重启应用生效"
+                       FontSize="11"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
