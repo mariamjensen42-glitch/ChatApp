@@ -8,10 +8,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -30,26 +27,33 @@ jobs:
       - name: Test
         run: dotnet test --configuration Release --no-build
 
-  build-package:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restore dependencies
-        run: dotnet restore
-
       - name: Publish
-        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-x64
+        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Create Inno Setup Script
+        run: |
+          @"
+          [Setup]
+          AppName=ChatApp
+          AppVersion=1.0.0
+          DefaultDirName={autopf}\ChatApp
+          OutputDir=.
+          OutputBaseFilename=ChatApp-Setup
+          Compression=lzma2
+          [Files]
+          Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+          "@ | Out-File -FilePath setup.iss -Encoding utf8
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Build Installer
+        run: iscc setup.iss
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/master'
         with:
-          name: ChatApp-win-x64
-          path: ./publish/win-x64
+          files: ChatApp-Setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
